@@ -36,6 +36,7 @@ export class UsersService {
 
       dto['id'] = uuid();
       console.log('uuid generate : ', dto['id']);
+      dto['reftoken'] = createRefreshToken(dto['id']);
       const result = await this.userRepository.save(
         this.userRepository.create(dto),
       );
@@ -44,7 +45,7 @@ export class UsersService {
         message: 'Sign Up finish',
         token: {
           toekn: createToken(result.id),
-          reftoken: createRefreshToken(result.id),
+          reftoken: result.reftoken,
         },
         result,
       };
