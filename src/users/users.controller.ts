@@ -13,8 +13,8 @@ export class UsersController {
 
   @Post('signup')
   @ApiOperation({ summary: '유저 가입' })
-  signup(@Body() dto: SignupUserDto) {
-    return this.usersService.create(dto);
+  async signup(@Body() dto: SignupUserDto) {
+    return await this.usersService.create(dto);
   }
 
   @Post('signin')
