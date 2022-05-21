@@ -43,10 +43,7 @@ export class UsersService {
       delete result.password;
       return {
         message: 'Sign Up finish',
-        token: {
-          toekn: createToken(result.id),
-          reftoken: result.reftoken,
-        },
+        token: createToken(result.id),
         result,
       };
     } catch (err) {
@@ -62,7 +59,8 @@ export class UsersService {
     try {
       const { email, password } = dto;
       const db_user = await this.userRepository.findOne({where: {email}})
-      if (email != db_user.email) {
+      console.log("search user result : ", db_user)
+      if (!db_user || email != db_user.email) {
         throw new HttpException(
           '존재하지 않는 email입니다.',
           HttpStatus.NOT_FOUND,
@@ -90,7 +88,7 @@ export class UsersService {
     } catch (err) {
       console.log('Error : ', err);
       throw new HttpException(
-        err.response ? err.response : 'Error From UsersService -> create',
+        err.response ? err.response : 'Error From UsersService -> signin',
         err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

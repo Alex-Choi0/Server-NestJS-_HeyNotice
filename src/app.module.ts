@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
+import { BoardsModule } from './boards/boards.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { UsersModule } from './users/users.module';
     autoLoadEntities: true, // 자동으로 entities를 DB에 배포
     synchronize: true // 동기화
     }),
-    UsersModule
+    UsersModule,
+    BoardsModule
   ],
   controllers: [AppController],
   providers: [AppService],
