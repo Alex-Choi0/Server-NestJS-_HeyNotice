@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { AppService } from './app.service';
     database: process.env.DB_DATABASE, // 데이터베이스 이름
     autoLoadEntities: true, // 자동으로 entities를 DB에 배포
     synchronize: true // 동기화
-    })
+    }),
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],
