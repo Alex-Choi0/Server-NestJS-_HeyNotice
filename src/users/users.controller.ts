@@ -12,13 +12,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('signup')
-  @ApiOperation({ summary: '유저 가입' })
+  @ApiOperation({ summary: '유저 가입', description: '회원 가입을 진행합니다.' })
   async signup(@Body() dto: SignupUserDto) {
     return await this.usersService.create(dto);
   }
 
   @Post('signin')
-  @ApiOperation({ summary: '유저 로그인' })
+  @ApiOperation({ summary: '유저 로그인', description: '로그인을 진행합니다. 로그인이 완료되면 access, refrash토큰이 주어집니다.' })
   signin(@Body() dto: SigninUserDto) {
     return this.usersService.signin(dto);
   }
@@ -31,7 +31,7 @@ export class UsersController {
 
   @Patch()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'id로 유저 업데이트' })
+  @ApiOperation({ summary: 'id로 유저 업데이트', description: '유저 정보를 업데이트 합니다.' })
   update(
     @Body() updateUserDto: UpdateUserDto,
     @GetTokenUserId('id') id: string,
@@ -43,6 +43,6 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'id로 유저 삭제' })
   remove(@GetTokenUserId('id') id: string) {
-    return this.usersService.remove(+id);
+    return this.usersService.remove(id);
   }
 }

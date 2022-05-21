@@ -61,20 +61,32 @@ export class UsersService {
   async signin(dto: SigninUserDto) {
     try {
       const { email, password } = dto;
-      if (!(await this.userRepository.findOne({ where: { email } }))) {
+      const db_user = await this.userRepository.findOne({where: {email}})
+      if (email != db_user.email) {
         throw new HttpException(
           '존재하지 않는 email입니다.',
-          HttpStatus.BAD_REQUEST,
+          HttpStatus.NOT_FOUND,
         );
       }
-      // 임시 리턴값. 이후 수정해야함
-      return {
-        message: 'This is signin',
-        data: {
-          token: createToken('12345'),
-          refToken: createRefreshToken('12345'),
-        },
-      };
+
+      if (!bcrypt.compareSync(password, db_user.password)){
+        throw new HttpException(
+          '비밀번호가 틀렸습니다.', HttpStatus.BAD_REQUEST
+        )
+      }
+
+      db_user['reftoken'] = createRefreshToken(db_user.id); 
+      await this.userRepository.save(db_user);
+
+      console.log("로그인 완료");
+
+      return{
+        message : 'This is signin',
+        data : {
+          token : createToken(db_user.id),
+          refToken : db_user.reftoken
+        }
+      } 
     } catch (err) {
       console.log('Error : ', err);
       throw new HttpException(
@@ -92,8 +104,32 @@ export class UsersService {
     return `This action returns a #${id} user`;
   }
 
-  update(id, dto: UpdateUserDto) {
+  async update(id, dto: UpdateUserDto) {
     try {
+      console.log("update id : ", id);
+      const db_user = await this.userRepository.findOne(id);
+      console.log("find user from db : ", db_user);
+
+      if(!db_user){
+        throw new HttpException("존재하지 않는 계정 입니다.", HttpStatus.NOT_FOUND);
+      }
+
+      if(dto.password.length > 0){
+        dto.password = bcrypt.hashSync(
+          dto.password,
+          await bcrypt.genSaltSync(+process.env.ROUND),
+        ); 
+      }
+
+      const update_user = {
+        ...db_user,
+        ...dto
+      }
+
+      console.log("update user info :", update_user);
+
+      await this.userRepository.save(update_user);
+
       return {
         message: 'This is user update',
         data: {
@@ -102,14 +138,32 @@ export class UsersService {
         },
       };
     } catch (err) {
+      console.log('Error : ', err);
       throw new HttpException(
-        'Error From UsersService -> create',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        err.response ? err.response : 'Error From UsersService -> create',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    console.log("delete id : ", id);
+    const db_user = await this.userRepository.findOne(id);
+    console.log("find user from db : ", db_user);
+
+    if(!db_user){
+      throw new HttpException("존재하지 않는 계정 입니다.", HttpStatus.NOT_FOUND);
+    }
+
+    return {
+        message: 'This is user has been deleted',
+        data: await this.userRepository.delete(id),
+      };
+    } catch (err) {
+      console.log('Error : ', err);
+      throw new HttpException(
+        err.response ? err.response : 'Error From UsersService -> create',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
   }
 }
