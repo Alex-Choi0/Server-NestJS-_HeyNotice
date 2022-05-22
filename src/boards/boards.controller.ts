@@ -30,7 +30,7 @@ export class BoardsController {
   @ApiQuery({
     description : 'take은 skip 이후에서 불러올 record 수를 설정한다',
     name: 'take',
-    example: 0,
+    example: 5,
     type : Number
   })
   async findAll(
