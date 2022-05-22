@@ -114,7 +114,7 @@ export class UsersService {
         throw new HttpException("존재하지 않는 계정 입니다.", HttpStatus.NOT_FOUND);
       }
 
-      if(dto.password.length > 0){
+      if(dto.password && dto.password.length > 0){
         dto.password = bcrypt.hashSync(
           dto.password,
           await bcrypt.genSaltSync(+process.env.ROUND),
@@ -129,6 +129,8 @@ export class UsersService {
       console.log("update user info :", update_user);
 
       await this.userRepository.save(update_user);
+      
+      if(dto.password) delete dto.password;
 
       return {
         message: 'This is user update',
