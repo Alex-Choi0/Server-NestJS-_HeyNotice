@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  const PORT = process.env.SERVER_PORT ? process.env.SERVER_PORT : 3000;
   app.enableCors();
 
   app.useGlobalPipes(
@@ -30,8 +30,10 @@ async function bootstrap() {
 
   // Swagger Document의 문서를 api(/api-docs)로 설정할수 있게 셋팅
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document); 
+  SwaggerModule.setup('api', app, document);
 
-  await app.listen(3000);
+  await app.listen(PORT, () => {
+    console.log('NestJS PORT : ', PORT);
+  });
 }
 bootstrap();
