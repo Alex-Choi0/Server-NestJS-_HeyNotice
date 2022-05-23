@@ -51,24 +51,28 @@ export class BoardsController {
     return await this.boardsService.findAll(skip, take);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.boardsService.findOne(+id);
+  @Get(':boardId')
+  findOne(@Param('boardId') boardId: string) {
+    return this.boardsService.findOne(boardId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto) {
-    return this.boardsService.update(+id, updateBoardDto);
+  @Patch(':boardId')
+  @ApiBearerAuth()
+  update(
+    @GetTokenUserId('id') id : string,
+    @Param('boardId') boardId: string, 
+    @Body() updateBoardDto: UpdateBoardDto) {
+    return this.boardsService.update(id, boardId, updateBoardDto);
   }
 
-  @Delete(':id')
+  @Delete(':boardId')
   @ApiBearerAuth()
   @ApiOperation({
     summary: '게시판 삭제',
     description:
       '토큰을 이용하여 게시판을 삭제 합니다. (해당 유저의 토큰을 확인해서 삭제를 진행함)',
   })
-  remove(@GetTokenUserId('id') id: string) {
-    return this.boardsService.remove(id);
+  remove(@GetTokenUserId('id') id: string, @Param('boardId') boardId : string) {
+    return this.boardsService.remove(id, boardId);
   }
 }

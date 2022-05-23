@@ -51,27 +51,79 @@ export class BoardsService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} board`;
+  async findOne(id: string) {
+    try{
+      const data = await this.boardRepository.findOne(id);
+      if(!data) throw new HttpException("존재하지 않는 글입니다.", HttpStatus.NOT_FOUND);
+
+      return {
+        message : "find board result",
+        data
+      }
+    } catch (err) {
+      console.log('Error : ', err);
+      throw new HttpException(
+        err.response ? err.response : 'Error From BoardsService -> create',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  update(id: number, updateBoardDto: UpdateBoardDto) {
-    return `This action updates a #${id} board`;
-  }
-
-  async remove(id: string) {
-    console.log('boards.service remove id :', id);
+  async update(id :string, boardId: string, dto: UpdateBoardDto) {
     try {
-      const deleteBoard = await this.boardRepository.findOne(id);
-      if (!deleteBoard)
+      const findBoard = await this.boardRepository.findOne(boardId);
+      if (!findBoard){
         throw new HttpException(
           '존재하지 않는 게시판 글입니다.',
           HttpStatus.NOT_FOUND,
         );
+      } else if(findBoard.usersId != id){
+        throw new HttpException(
+          '해당 작성자와 수정하는 분이 일치 하지 않습니다',
+          HttpStatus.CONFLICT
+        )
+      }
 
+      const updateBoard = this.boardRepository.create({
+        ...findBoard,
+        ...dto
+      })
+
+
+      
       return {
         message: '게시판 삭제 완료',
-        data: await this.boardRepository.delete(deleteBoard),
+        data: await this.boardRepository.save(updateBoard),
+      };
+    } catch (err) {
+      console.log('Error : ', err);
+      throw new HttpException(
+        err.response ? err.response : 'Error From BoardsService -> create',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  
+
+  async remove(id: string, boardId : string) {
+    console.log('boards.service remove id :', id);
+    try {
+      const deleteBoard = await this.boardRepository.findOne(boardId);
+      if (!deleteBoard){
+        throw new HttpException(
+          '존재하지 않는 게시판 글입니다.',
+          HttpStatus.NOT_FOUND,
+        );
+      } else if(deleteBoard.usersId != id){
+        throw new HttpException(
+          '해당 작성자와 삭제하는 분이 일치 하지 않습니다',
+          HttpStatus.CONFLICT
+        )
+      }
+      
+      return {
+        message: '게시판 삭제 완료',
+        data: await this.boardRepository.remove(deleteBoard),
       };
     } catch (err) {
       console.log('Error : ', err);
