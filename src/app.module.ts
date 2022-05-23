@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { BoardsModule } from './boards/boards.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { BoardsModule } from './boards/boards.module';
     synchronize: true // 동기화
     }),
     UsersModule,
-    BoardsModule
+    BoardsModule,
+    CommentsModule
   ],
   controllers: [AppController],
   providers: [AppService],
