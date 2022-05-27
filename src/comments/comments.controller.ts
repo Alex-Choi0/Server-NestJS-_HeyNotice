@@ -17,7 +17,7 @@ export class CommentsController {
     description : '토큰을 이용하여 존재하고 있는 게시판에 댓글을 작성합니다'
   })
   create(@Body() dto: CreateCommentDto, @GetTokenUserId('id') id: string) {
-    return this.commentsService.create(dto);
+    return this.commentsService.create(id, dto);
   }
 
   @Get()

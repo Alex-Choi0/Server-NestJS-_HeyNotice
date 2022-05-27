@@ -9,5 +9,6 @@ import { Board } from './entities/board.entity';
   imports: [TypeOrmModule.forFeature([Board]), UsersModule],
   controllers: [BoardsController],
   providers: [BoardsService],
+  exports: [BoardsService],
 })
 export class BoardsModule {}
