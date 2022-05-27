@@ -16,7 +16,7 @@ export class Board {
     content : string;
 
     @CreateDateColumn({readonly : true})
-    created_at
+    created_at : Date
 
     @JoinColumn()
     @ManyToOne(() => User, (users) => users.id, {
