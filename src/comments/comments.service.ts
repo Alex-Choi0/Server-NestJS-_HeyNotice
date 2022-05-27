@@ -54,7 +54,7 @@ export class CommentsService {
     return `This action updates a #${id} comment`;
   }
 
-  async remove(id: string, commentId: string) {
+  async remove(commentId: string, id: string) {
     try {
       const comment = await this.commentRepository.findOne({ id: commentId });
       if (!comment)
