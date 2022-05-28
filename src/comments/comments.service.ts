@@ -26,7 +26,7 @@ export class CommentsService {
       const comment = this.commentRepository.create({
         usersId: id,
         boardsId: dto.boardId,
-        content: dto.comment,
+        comment: dto.comment,
       });
 
       return {
@@ -42,16 +42,84 @@ export class CommentsService {
     }
   }
 
-  findAll() {
-    return `This action returns all comments`;
+  async findAll(id: string, skip: number, take: number) {
+    try {
+      const data = await this.commentRepository.find({
+        where: { usersId: id },
+        skip,
+        take,
+      });
+
+      return {
+        message: 'comment check complete',
+        data,
+      };
+    } catch (err) {
+      console.log('Error : ', err);
+      throw new HttpException(
+        err.response ? err.response : 'Error From CommentsService -> findAll',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  findOne(commentId: string) {
-    return `This action returns a #${commentId} comment`;
+  async findOne(commentId: string) {
+    try {
+      const data = await this.commentRepository.find({
+        where: { id: commentId },
+        relations: ['boards'],
+      });
+
+      return {
+        message: 'comment check complete',
+        data,
+      };
+    } catch (err) {
+      console.log('Error : ', err);
+      throw new HttpException(
+        err.response ? err.response : 'Error From CommentsService -> create',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  update(commentId : string, id: string, dto : UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+  async update(commentId: string, id: string, dto: UpdateCommentDto) {
+    try {
+      const comment = await this.commentRepository.findOne({
+        where: { id: commentId },
+      });
+      if (!comment)
+        throw new HttpException(
+          '존재하지 않는 댓글 입니다.',
+          HttpStatus.NOT_FOUND,
+        );
+      else if (id != comment.usersId)
+        throw new HttpException(
+          '댓글 작성자와 수정자가 일치하지 않습니다.',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      console.log('update dto :', dto);
+      console.log('update comment : ', comment);
+
+      const updateComment = this.commentRepository.create({
+        ...comment,
+        ...dto,
+      });
+
+      console.log('updateComment : ', updateComment);
+
+      return {
+        message: 'comment update complete',
+        data: await this.commentRepository.save(updateComment),
+      };
+    } catch (err) {
+      console.log('Error : ', err);
+      throw new HttpException(
+        err.response ? err.response : 'Error From CommentsService -> create',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async remove(commentId: string, id: string) {
