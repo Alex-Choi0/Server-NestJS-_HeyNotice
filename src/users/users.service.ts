@@ -98,8 +98,17 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    console.log("해당 유저의 정보 불러오기");
+    const user = await this.userRepository.findOne(id);
+
+    if(!user) throw new HttpException("존재하지 않는 계정 입니다.", HttpStatus.NOT_FOUND);
+    delete user.password;
+
+    return {
+      message : "해당 유저정보 출력 완료",
+      data : user
+    }
   }
 
   async update(id, dto: UpdateUserDto) {

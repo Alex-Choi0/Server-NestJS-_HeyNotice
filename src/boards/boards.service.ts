@@ -79,6 +79,30 @@ export class BoardsService {
     }
   }
 
+  async findUserPosts(id: string, skip : number, take : number){
+    console.log(skip, take);
+    try{
+      const data = await this.boardRepository.find({
+        where : {
+          usersId : id
+        },
+        skip,
+        take
+      })
+
+      return {
+        message : '해당 유저의 글을 조회 완료',
+        data
+      }
+    } catch (err) {
+      console.log('Error : ', err);
+      throw new HttpException(
+        err.response ? err.response : 'Error From BoardsService -> create',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async update(id: string, boardId: string, dto: UpdateBoardDto) {
     try {
       const findBoard = await this.boardRepository.findOne(boardId);

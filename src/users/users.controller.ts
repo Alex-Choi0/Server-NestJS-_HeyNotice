@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetTokenUserId } from 'src/utils/decoraters/get-token.decorator';
 import { SigninUserDto } from './dto/signin-user.dto';
@@ -23,11 +23,12 @@ export class UsersController {
     return this.usersService.signin(dto);
   }
 
-  // @Get(':id')
-  // @ApiOperation({ summary : 'id로 유저 조회'})
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(+id);
-  // }
+  @Get('userInfo')
+  @ApiBearerAuth()
+  @ApiOperation({ summary : 'id로 해당 토큰의 유저 정보 조회'})
+  findOne(@GetTokenUserId('id') id : string) {
+    return this.usersService.findOne(id);
+  }
 
   @Patch()
   @ApiBearerAuth()

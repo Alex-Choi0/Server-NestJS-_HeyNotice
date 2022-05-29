@@ -82,6 +82,28 @@ export class CommentsService {
       );
     }
   }
+  
+  async findUserComments(id : string, skip : number, take :number){
+    try{
+      const data = await this.commentRepository.find({
+        where : {
+          usersId : id
+        },
+        skip,
+        take
+      });
+      return {
+        message : "유저 댓글 조회 완료",
+        data
+      }
+    } catch (err) {
+      console.log('Error : ', err);
+      throw new HttpException(
+        err.response ? err.response : 'Error From CommentsService -> create',
+        err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   async update(commentId: string, id: string, dto: UpdateCommentDto) {
     try {

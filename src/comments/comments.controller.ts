@@ -62,6 +62,25 @@ export class CommentsController {
     return this.commentsService.findAll(id, skip, take);
   }
 
+  @Get('user/comments')
+  @ApiOperation({summary : '유저가 작성한 댓글을 출력한다', description : '토큰을 이용하여 해당 유저의 댓글을 skip와 take로 갖고온다'}) 
+  @ApiBearerAuth()
+  @ApiQuery({
+    description: 'skip은 생략할 record를 설정한다',
+    name: 'skip',
+    example: 0,
+    type: Number,
+  })
+  @ApiQuery({
+    description: 'take은 skip 이후에서 불러올 record 수를 설정한다',
+    name: 'take',
+    example: 5,
+    type: Number,
+  })
+  findUserComments(@GetTokenUserId('id') id : string, @Query('skip') skip : number, @Query('take') take : number){
+    return this.commentsService.findUserComments(id, skip, take);
+  }
+
   @Get(':commentId')
   @ApiOperation({
     summary: '댓글의 commentId를 이용하여 댓글 내용을 확인합니다.',
