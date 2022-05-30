@@ -43,10 +43,7 @@ export class UsersService {
       delete result.password;
       return {
         message: 'Sign Up finish',
-        token: {
-          toekn: createToken(result.id),
-          reftoken: result.reftoken,
-        },
+        token: createToken(result.id),
         result,
       };
     } catch (err) {
@@ -62,7 +59,8 @@ export class UsersService {
     try {
       const { email, password } = dto;
       const db_user = await this.userRepository.findOne({where: {email}})
-      if (email != db_user.email) {
+      console.log("search user result : ", db_user)
+      if (!db_user || email != db_user.email) {
         throw new HttpException(
           '존재하지 않는 email입니다.',
           HttpStatus.NOT_FOUND,
@@ -90,7 +88,7 @@ export class UsersService {
     } catch (err) {
       console.log('Error : ', err);
       throw new HttpException(
-        err.response ? err.response : 'Error From UsersService -> create',
+        err.response ? err.response : 'Error From UsersService -> signin',
         err.status ? err.status : HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -100,8 +98,17 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    console.log("해당 유저의 정보 불러오기");
+    const user = await this.userRepository.findOne(id);
+
+    if(!user) throw new HttpException("존재하지 않는 계정 입니다.", HttpStatus.NOT_FOUND);
+    delete user.password;
+
+    return {
+      message : "해당 유저정보 출력 완료",
+      data : user
+    }
   }
 
   async update(id, dto: UpdateUserDto) {
@@ -114,7 +121,7 @@ export class UsersService {
         throw new HttpException("존재하지 않는 계정 입니다.", HttpStatus.NOT_FOUND);
       }
 
-      if(dto.password.length > 0){
+      if(dto.password && dto.password.length > 0){
         dto.password = bcrypt.hashSync(
           dto.password,
           await bcrypt.genSaltSync(+process.env.ROUND),
@@ -129,6 +136,8 @@ export class UsersService {
       console.log("update user info :", update_user);
 
       await this.userRepository.save(update_user);
+      
+      if(dto.password) delete dto.password;
 
       return {
         message: 'This is user update',
